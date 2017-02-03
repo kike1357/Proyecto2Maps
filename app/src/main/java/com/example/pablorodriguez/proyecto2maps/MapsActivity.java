@@ -1,5 +1,6 @@
 package com.example.pablorodriguez.proyecto2maps;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -7,12 +8,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,5 +47,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng marca = new LatLng(42.2366, -8.714552);
         mMap.addMarker(new MarkerOptions().position(marca).title("Marca en DanielCastelao"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(marca));
+
+        LatLng circulo = new LatLng(42.236947, -8.713538);
+        int radius = 100;
+
+        CircleOptions circleOptions = new CircleOptions()
+                .center(circulo)
+                .radius(radius)
+                .strokeColor(Color.parseColor("#050016"))
+                .strokeWidth(4)
+                .fillColor(Color.argb(32, 33, 150, 243));
+
+        Circle circleObx = mMap.addCircle(circleOptions);
+
     }
-}
+    }
+
