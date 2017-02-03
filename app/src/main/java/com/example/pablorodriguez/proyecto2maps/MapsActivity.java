@@ -1,8 +1,10 @@
 package com.example.pablorodriguez.proyecto2maps;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +18,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    public static double latitud, longitud;
+
 
 
     @Override
@@ -61,5 +65,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Circle circleObx = mMap.addCircle(circleOptions);
 
     }
+
+    private void updateUI(Location loc) {
+
+        if (loc != null) {
+            latitud = loc.getLatitude();
+            longitud = loc.getLongitude();
+
+        } else {
+            Toast.makeText(this, "No se reconoce la latitud y longitud", Toast.LENGTH_LONG).show();
+
+        }
+
+
     }
 
+}
