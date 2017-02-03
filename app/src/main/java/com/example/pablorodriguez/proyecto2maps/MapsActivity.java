@@ -1,11 +1,19 @@
 package com.example.pablorodriguez.proyecto2maps;
 
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -15,10 +23,13 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
 
     private GoogleMap mMap;
     public static double latitud, longitud;
+    public static final int LOCATION_REQUEST_CODE = 1;
+    private GoogleApiClient GoogleAPI;
+    private static final String LOGTAG = "android-localizacion";
 
 
 
@@ -30,6 +41,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        GoogleAPI = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
 
@@ -80,4 +96,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_REQUEST_CODE);
+        } else {
+
+            Location lastLocation =
+                    LocationServices.FusedLocationApi.getLastLocation(GoogleAPI);
+
+            updateUI(lastLocation);
+        }
+    }
+    @Override
+    public void onConnectionSuspended(int i) {
+
+
+        Log.e(LOGTAG, "Conexión interrumpida...");
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+
+        Log.e(LOGTAG, "Error en la conexión...!!");
+    }
 }
+
