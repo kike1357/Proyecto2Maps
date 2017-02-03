@@ -25,15 +25,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
-    public static double latitud, longitud;
+    public static double latitud,longitud;
     public static final int LOCATION_REQUEST_CODE = 1;
     private GoogleApiClient GoogleAPI;
     private static final String LOGTAG = "android-localizacion";
     public static Marker marcaOBX;
-
+    CircleOptions circleOptions = new CircleOptions();
 
 
     @Override
@@ -65,12 +65,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
 
         mMap = googleMap;
+        mMap.setOnMapClickListener(this);
 
 
         // Add a marker in Sydney and move the camera
-        LatLng marca = new LatLng(42.2366, -8.714552);
-        mMap.addMarker(new MarkerOptions().position(marca).title("Marca en DanielCastelao"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(marca));
+        LatLng sitio = new LatLng(42.2366, -8.714552);
+        mMap.addMarker(new MarkerOptions().position(sitio).title("Marca en DanielCastelao"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sitio));
         //marcaOBX.setVisible(false);
 
         LatLng circulo = new LatLng(42.236947, -8.713538);
@@ -93,7 +94,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        CircleOptions circleOptions = new CircleOptions()
+        circleOptions = new CircleOptions()
                 .center(circulo)
                 .radius(radius)
                 .strokeColor(Color.parseColor("#050016"))
@@ -147,6 +148,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
+
+    public void calcularDistancia() {
+
+        double earthRadius = 6372.795477598;
+
+        double disLati = Math.toRadians(latitud-42.2366);
+        double disLongi = Math.toRadians(longitud-8.714552);
+        double a = Math.sin(disLati/2) * Math.sin(disLati/2) +
+                Math.cos(Math.toRadians(42.2366)) * Math.cos(Math.toRadians(latitud)) *
+                        Math.sin(disLongi/2) * Math.sin(disLongi/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double dist = earthRadius * c;
+        double distMarc=dist*1000;
+        String distancia=String.valueOf(distMarc);
+
+        Toast.makeText(this,"Metros que le separan de la zona de destino:" + distancia, Toast.LENGTH_LONG).show();
+
+        if(distMarc<=20){
+            //marcaOBX.setVisible(true);
+        }else {
+            //marcaOBX.setVisible(false);
+        }
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            return;
+        }
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(GoogleAPI);
+        updateUI(lastLocation);
+        calcularDistancia();
+
+
+    }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
