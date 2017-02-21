@@ -1,15 +1,17 @@
 package com.example.pablorodriguez.proyecto2maps;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -25,10 +27,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMapClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.OnConnectionFailedListener,GoogleApiClient.ConnectionCallbacks, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
 
     private GoogleMap mMap;
     public static double latitud,longitud;
+    private static final int TESOURO_REQUEST_CODE = 1;
     public static final int LOCATION_REQUEST_CODE = 1;
     private GoogleApiClient GoogleAPI;
     private static final String LOGTAG = "android-localizacion";
@@ -217,4 +220,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.e(LOGTAG, "Error en la conexión...!!");
     }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        Intent intent = new Intent(getBaseContext(), ScannerActivity.class);
+        int code = 4545; // Esto puede ser cualquier código.
+        startActivityForResult(intent, code);
+    }
+
+
+
+    void lectorQR(View b){
+        Intent intent = new Intent(getBaseContext(), ScannerActivity.class);
+
+        startActivityForResult(intent, TESOURO_REQUEST_CODE);
+    }
+    @Override
+    protected  void onActivityResult(int requestCode,int resultCode,Intent data){
+        if(requestCode == TESOURO_REQUEST_CODE){
+            if(resultCode==RESULT_OK){
+                String resultado=data.getStringExtra("Tesoro");
+                Toast.makeText(getBaseContext(),resultado,Toast.LENGTH_LONG).show();
+
+            }
+        }
+    }
+
 }
